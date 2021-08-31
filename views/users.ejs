@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Sumit Saha" />
+    <meta name="owner" content="learnwithsumit.com" />
+    <title><%= title %></title>
+    <link rel="shortcut icon" href="./images/login.png" />
+    <link rel="stylesheet" href="./stylesheets/toastify.css" />
+    <link rel="stylesheet" href="./stylesheets/style.css" />
+    <script src="./js/toastify.js"></script>
+  </head>
+  <body>
+    <div class="menu">
+      <% if(loogedInUser && loogedInUser.name) { %>
+        <div class="menu-item"><a href="/profile">Profile</a></div>
+        <div class="menu-item"><a href="/inbox">Inbox</a></div>
+        <% if(loogedInUser.role == 'admin') { %>
+          <div class="menu-item"><a href="/users" style="color: #FF6584;">Users</a></div>
+        <% } %>
+        
+        <div class="menu-item"><a onclick="logout()" href="#">LogOut</a></div>
+      <% } else { %>
+        <div class="menu-item"><a href="/inbox">Inbox</a></div>
+        <div class="menu-item"><a href="/users">Users</a></div>
+        <div class="menu-item"><a href="/">Login</a></div>
+        <% } %>
+    </div>
+
+    <script>
+
+      const logouttoast = Toastify({
+        text: "You are being logged out...",
+        duration: 1000,
+      })
+
+       function logout(){
+         fetch('/', {
+           method: 'DELETE'
+         });
+      logouttoast.showToast();
+       setTimeout(() => {
+         window.location.replace("/");
+       }, 1000);
+
+      }
+    </script>
+
+    <div class="manageUser-container">
+      <div id="title">
+        <h2>Manage Users</h2>
+      </div>
+
+      <div class="new-message-container new-user">
+        <a href="#" onclick="openModal()">+</a>
+      </div>
+
+      <div id="users-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Manage</th>
+            </tr>
+          </thead>
+          <tbody id="users-table">
+            <% users.forEach(function(user) { %>
+            <tr id="<%= user._id %>">
+              <td class="name">
+                <% if(user.avater) { %>
+                  <img src="./upload/avater/<%= user.avater %>" />
+                <% } else { %>
+                  <img src="./images/noPhoto.png" />
+                <% } %>
+                <span><%= user.name %></span>
+              </td>
+              <td><%= user.email %></td>
+              <td class="manage">
+                <img src="./images/trash.png" alt="Delete" onclick="deleteUser('<%= user._id %>')" />
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <%- include('./partials/add-user-model.ejs'); %>
+    
+    <script>
+      // toasts
+      const deleteToast = Toastify({
+          text: "User was deleted successfully!",
+          duration: 3000,
+      });
+      const deleteErrorToast = Toastify({
+          text: "Could not delete the user!",
+          duration: 3000,
+      });
+      
+      // delete user function
+      async function deleteUser(userId) {
+        //deleteErrorToast.showToast();
+        //document.getElementById(userId).remove();
+        let response = await fetch(`/users/${userId}`, {
+           method: "DELETE",
+        });
+        let result = await response.json();
+          console.log(result)
+         
+        if (result.errors) {
+            deleteErrorToast.showToast();
+        } else {
+            deleteToast.showToast();
+            document.getElementById(userId).remove();
+        }
+      }
+  </script>
+  </body>
+</html>

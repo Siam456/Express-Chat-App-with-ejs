@@ -1,0 +1,24 @@
+//you-message
+            //other-message
+            const message_content = document.createElement('div');
+            message_content.classList.add('message-content')
+
+            const message_text = document.createElement('div');
+            message_text.classList.add('message-text');
+            message_text.append(msgs.text)
+
+            message_content.appendChild(message_text);
+            msg.appendChild(message_content);
+            flag = false;
+/////////////////////////
+
+             const message_content = document.createElement('div');
+            message_content.classList.add('message-content')
+
+            const message_text = document.createElement('div');
+            message_text.classList.add('message-text');
+            message_text.append(msgs.text)
+
+            message_content.appendChild(message_text);
+            msg.appendChild(message_content);
+            

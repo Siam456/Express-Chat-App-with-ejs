@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <link rel="shortcut icon" href="./images/login.png" />
+    <link rel="stylesheet" href="./stylesheets/toastify.css" />
+    <link rel="stylesheet" href="./stylesheets/style.css" />
+    <script src="./js/toastify.js"></script>
+
+    <style>
+      .data{
+        display: flex;
+        padding: 5px;
+        margin: 15px;
+        border: 2px solid black;
+        border-radius: 10px;
+        background-color: #1F222E;
+        color: white;
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+      .data:hover{
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .modal-details{
+        margin-left: 10px;
+      }
+      .modal-data{
+        padding: 2px;
+        font-size: 15px;
+      }
+      .modal-img{
+        border-radius: 50%;
+        border: 2px solid #3c369c;
+      }
+      .user-list{
+        place-content: center center;
+        background: #eee;
+        border-radius: 50%;
+        color: black;
+        text-decoration: none;
+        padding: 0px 10px;
+        font-size: 3.6rem;
+        margin-left: 20px;
+        margin-bottom: 20px;
+      }
+
+      .no-msg-list{
+        text-align: center;
+         height: 250px;
+      }
+      .with-msg-list{
+        height: 470px;
+      }
+      .no-msg-display{
+        display: none;
+      }
+      .with-msg-display{
+        display: block;
+      }
+    </style>
+    
+  </head>
+  <body>
+    <div class="menu">
+      <% if(loogedInUser && loogedInUser.name) { %>
+        <div class="menu-item"><a href="/profile">Profile</a></div>
+        <div class="menu-item"><a href="/inbox" style="color: #FF6584;">Inbox</a></div>
+        <% if(loogedInUser.role == 'admin') { %>
+          <div class="menu-item"><a href="/users">Users</a></div>
+        <% } %>
+        <div class="menu-item"><a onclick="logout()" href="#">LogOut</a></div>
+      <% } else { %>
+        <div class="menu-item"><a href="/inbox">Inbox</a></div>
+        <div class="menu-item"><a href="/users">Users</a></div>
+        <div class="menu-item"><a href="/">Login</a></div>
+        <% } %>
+    </div>
+
+    <script>
+
+      const logouttoast = Toastify({
+        text: "You are being logged out...",
+        duration: 1000,
+      })
+
+       function logout(){
+         fetch('/', {
+           method: 'DELETE'
+         });
+      logouttoast.showToast();
+       setTimeout(() => {
+         window.location.replace("/");
+       }, 1000);
+
+      }
+    </script>
+
+    <div id="chat-container">
+      <div id="search-container">
+        <input type="text" placeholder="Search" />
+      </div>
+      <div id="conversation-list">
+         <% conversations.forEach(function(index) { %>
+          
+          <% if(loogedInUser.userid==index.participant.id) { %>
+            <div class="conversation" onclick="conversation( '<%= loogedInUser.userid %>' ,'<%= index.creator.name %>' , '<%= index.creator.id %>' , '<%= index.creator.avater %>' , '<%= index._id %>')">
+            
+              <% if (index.creator.avatar) { %>
+                  <img src="./upload/avater/<%=index.creator.avatar%>" alt="" />
+                <% } else { %>
+                  <img src="./images/user1.png" />
+              <% } %>
+  
+              <div class="title-text"><%= index.creator.name %> %></div>
+              <div class="created-date"> <%= moment(index.last_updated).fromNow() %> </div>
+              <div class="conversation-message"><%= moment(index.last_updated).fromNow() %></div>
+              
+            </div>
+          <% } else{ %>
+            <div class="conversation" onclick="conversation('<%= loogedInUser.userid %>' ,'<%= index.participant.name %>' , '<%= index.participant.id %>' , '<%= index.participant.avater %>' , '<%= index._id %>')">
+            
+              <% if (index.participant.avatar) { %>
+                <img src="./upload/avater/<%=index.participant.avatar%>" alt="" />
+                <% } else { %>
+                  <img src="./images/user1.png" />
+              <% } %>
+  
+              <div class="title-text"><%= index.participant.name %> %></div>
+              <div class="created-date"> <%= moment(index.last_updated).fromNow() %> </div>
+              <div class="conversation-message"><%= moment(index.last_updated).fromNow() %></div>
+            </div>
+  
+          <% } %>
+
+        <% }); %>
+      </div>
+
+
+      <div id="new-message-container">
+        <a href="#" onclick="openModal()" class="user-list">+</a>
+      </div>
+      
+      <%- include('./partials/show-user-modal.ejs'); %>
+
+      
+      <div id="chat-title" style="background: #171C2A; border: #171C2A;">
+        
+          <span id="conv_name"></span>
+          <img onclick="delete_conv()" id="conv_delete" class="no-msg-display" src="./images/trash.png" alt="Delete Conversation" />
+       
+      </div>
+
+      <div id="chat-message-list"> 
+          <div id="no-msgid" class="nomsg"><p style="color: gray; font-size: 15px;">Start Conversation</p></div>
+
+          
+          <div id="msgid" class="no-msg-display">
+            
+            <div class="message-row" id="msg" >
+              <div class="message-content">
+                <div class="message-time">Apr 16</div>
+              </div>
+            </div>
+          </div>
+          
+          
+          
+      </div>
+      
+        <div id="chat-form" style="background: #171C2A;
+        border: #171C2A;">
+          
+            <img id="conv_img" class="no-msg-display" src="./images/attachment.png" alt=Add Attachment"" />
+           
+              <form action=""
+              autocomplete="off"
+              id="msg-from"
+              method="POST">
+                <input id="conv_msg_fild" style="color: white;" class="no-msg-display" type="text" placeholder="Type a message" />
+                <input style="display: none;" type="submit" value="Submit" />
+              </form>
+              <!-- <img  style="margin-left: 20px;" src="./images/send.png" alt=Add Attachment"" /> -->
+            <input style="display: none;" type="submit" value="Submit" />
+          
+        </div>
+       
+    </div>
+
+    <div class="modal-wrapper">
+      <div class="modal">
+        <a href="#" class="modal-close">+</a>
+        <div class="modal-title">
+          <h2>Create New Conversation</h2>
+        </div>
+        <div class="modal-body">
+          <form>
+            <input type="text" placeholder="Name" />
+            <input type="text" placeholder="Username" />
+            <input type="button" value="Submit" />
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    
+    const form = document.querySelector("#msg-from");
+
+    let flag = true;
+    let count = 0;
+  
+    let deleteid;
+    let reciver_id;
+    let reciver_name;
+    let reciver_avater;
+    async function conversation(loggedInUserId, name , rcver_id , avater , id){
+      var conv_name = document.getElementById('conv_name');
+      conv_name.textContent = name;
+      reciver_id = rcver_id;
+      reciver_name = name;
+      reciver_avater = avater;
+
+      document.getElementById("conv_delete").classList.add('with-msg-display');
+      document.getElementById("conv_img").classList.add('with-msg-display');
+      document.getElementById("conv_msg_fild").classList.add('with-msg-display');
+
+      document.getElementById("no-msgid").classList.add('no-msg-display');
+      document.getElementById("msgid").classList.remove('no-msg-display');
+      
+      deleteid = id;
+
+      const response = await fetch(`./get/${id}`, {
+        method: "GET",
+      });
+
+      const result = await response.json();
+      const msgq = document.getElementById('msg');
+      
+
+      if(result){
+        msg.innerHTML = "";
+        result.msg.forEach(msgs => {
+            if(msgs.conversation_id == id){
+
+
+              if(loggedInUserId==msgs.sender.id){
+                console.log(msgs.text)
+                
+                const message_content = document.createElement('div');
+                message_content.classList.add('message-content')
+                message_content.classList.add('you-message')
+
+                const message_text = document.createElement('div');
+                message_text.classList.add('message-text');
+                message_text.append(msgs.text)
+
+                message_content.appendChild(message_text);
+                msg.appendChild(message_content);
+
+
+              } else{
+                console.log(msgs.text);
+
+                const message_content = document.createElement('div');
+                message_content.classList.add('message-content');
+                message_content.classList.add('other-message')
+
+                const message_text = document.createElement('div');
+                message_text.classList.add('message-text');
+                message_text.append(msgs.text)
+
+                message_content.appendChild(message_text);
+                msg.appendChild(message_content);
+              }
+
+            } 
+
+            
+         });
+        console.log(result)
+        
+      }
+console.log(count)
+
+    }
+    async function delete_conv(){
+
+      const succesToast = Toastify({
+        text: "User was Delete successfully!! reload now...",
+        duration: 3000,
+      }); 
+
+      const errorToast = Toastify({
+        text: "something Wrong Boy!!",
+        duration: 1000,
+      });
+
+      const response = await fetch('./conversation/siam/delete', {
+        method: "POST",
+        body: `id=${deleteid}`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        
+      });
+
+      const result = await response.json();
+
+      if(result){
+        console.log(result)
+        succesToast.showToast();
+        location.reload();
+        
+      } else{
+        errorToast.showToast();
+      }
+    }
+    
+    form.onsubmit = async function (event) {
+      event.preventDefault();
+
+      const message = document.getElementById('conv_msg_fild').value;
+      
+      let conv_id = deleteid;
+      
+      console.log(message, conv_id, reciver_id, reciver_avater, reciver_name);
+      let response = await fetch('/create/msg', {
+           method: "POST",
+           body: `text=${message}&conversation_id=${conv_id}&reciver_name=${reciver_name}&reciver_avater=${reciver_avater}&reciver_id=${reciver_id}`,
+           headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              },
+        });
+        let result = await response.json();
+          console.log(result)
+
+      document.getElementById('conv_msg_fild').value = '';
+      location.reload()
+
+    }
+  </script>
+</html>

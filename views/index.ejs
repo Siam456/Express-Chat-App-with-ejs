@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <link rel="shortcut icon" href="./images/login.png" />
+    <link rel="stylesheet" href="./stylesheets/toastify.css" />
+    <link rel="stylesheet" href="./stylesheets/style.css" />
+    <script src="./js/toastify.js"></script>
+
+    <style>
+      .newac{
+        text-decoration: none;
+        color: #6C63FF;
+      }
+      .newac:hover{
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="menu">
+      <% if(loogedInUser && loogedInUser.name) { %>
+        <div class="menu-item"><a href="/inbox">Inbox</a></div>
+        <div class="menu-item"><a href="/users">Users</a></div>
+        <div class="menu-item"><a onclick="logout()" href="#">LogOut</a></div>
+      <% } else { %>
+        <div class="menu-item"><a href="/about">about</a></div>
+        <div class="menu-item"><a class="lo-btn" href="/">Login</a></div>
+        <% } %>
+    </div>
+
+    <script>
+
+      const logouttoast = Toastify({
+        text: "You are being logged out...",
+        duration: 1000,
+      })
+
+      function logout(){
+        fetch('/', {
+          method: 'DELETE'
+        });
+      logouttoast.showToast();
+      setTimeout(() => {
+        window.location.replace("/");
+      }, 1000);
+
+      }
+    </script>
+
+    <div id="login-container">
+      <div id="left-column"></div>
+      <div id="branding">
+        <img src="./images/login.svg" />
+        <h1>Login - Chat Application</h1>
+      </div>
+      <div id="login-form">
+        <form method="post" action="/">
+          <input
+            type="text"
+            name="username"
+            placeholder="enter mobile or email"
+            value=""
+          />
+          <% if(errors.username) { %>
+          <p class="error show"><%= errors.username.msg %></p>
+          <% } %>
+          <input type="password" name="password" placeholder="enter password" />
+          <% if(errors.password) { %>
+            <p class="error show"><%= errors.password.msg %></p>
+          <% } %>
+
+          <% if(errors.common) { %>
+            <p class="error show"><%= errors.common.msg %></p>
+          <% } %>
+          <p style=
+          "color: white;
+          text-align: right;
+          font-size: 15px;
+          ">Need an <a class="newac"  onclick="openModal()" href="/createaccount">Account?</a></p>
+          <input type="submit" value="Login" />
+
+          
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

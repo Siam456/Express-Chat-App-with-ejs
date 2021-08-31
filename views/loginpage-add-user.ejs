@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <link rel="shortcut icon" href="./images/login.png" />
+    <link rel="stylesheet" href="./stylesheets/toastify.css" />
+    <link rel="stylesheet" href="./stylesheets/style.css" />
+    <script src="./js/toastify.js"></script>
+
+    <style>
+      .newac{
+        text-decoration: none;
+        color: #6C63FF;
+      }
+      .newac:hover{
+        text-decoration: underline;
+      }
+      .left-column {
+        grid-area: left-column;
+        background-color: var(--tertiary);
+        background-image: url("../images/reg2.svg");
+        background-size: 68%;
+        background-position: center;
+        background-repeat: no-repeat;
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="menu">
+      
+       
+        <div class="menu-item"><a href="/about">about</a></div>
+        <div class="menu-item"><a class="lo-btn" href="/">Login</a></div>
+       
+    </div>
+
+   
+
+    <div id="login-container">
+      <div class="left-column"></div>
+      <div id="branding">
+        <img src="./images/reg1.svg" />
+        <h1>Create Account - Chat Application</h1>
+      </div>
+      <div id="login-form">
+        <form
+        method="post"
+        action="/users"
+        enctype="multipart/form-data"
+        id="add-user-form"
+      >
+        <input type="text" placeholder="enter name" name="name" />
+        <p class="error name-error"></p>
+
+        <input type="text" placeholder="enter email" name="email" />
+        <p class="error email-error"></p>
+
+        <input type="text" placeholder="enter phone" name="phone" />
+        <p class="error phone-error"></p>
+
+        <input type="password" placeholder="enter password" name="password" />
+        <p class="error password-error"></p>
+
+        <input type="file" name="avatar" />
+        <p class="error avatar-error"></p>
+
+        <p class="error common-error"></p>
+
+        <p style=
+        "color: white;
+        text-align: right;
+        font-size: 15px;
+        ">Already have Account? <a class="newac"  onclick="openModal()" href="/">Login Now</a></p>
+        
+        
+
+        <input type="submit" value="Submit" />
+      </form>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const form = document.querySelector("#add-user-form");
+    // success toast
+    const successToast = Toastify({
+      text: "User was added successfully! Reloading the list...",
+      duration: 1000,
+    });
+    
+    // form submit handler
+    form.onsubmit = async function (event) {
+      event.preventDefault();
+      // clear errors first
+      const errorPlaceholders = document.querySelectorAll("p.error");
+      for (let i = 0; i < errorPlaceholders.length; i++) {
+        errorPlaceholders[i].style.display = "none";
+      }
+      const inputErrors = document.querySelectorAll("input.error");
+      if (inputErrors.length > 0) {
+        for (let j = 0; j < inputErrors.length; j++) {
+          inputErrors[j].classList.remove("error");
+        }
+      }
+      // prepare the form data
+      const formData = new FormData(form);
+      // send the request to server
+      let response = await fetch("/users", {
+        method: "POST",
+        body: formData,
+      });
+      // get response
+      let result = await response.json();
+      // handle error and response
+      if (result.errors) {
+        // errors
+        Object.keys(result.errors).forEach((fieldName) => {
+          // add error class to all inputs
+          form[fieldName].classList.add("error");
+          // set all error placeholders (p tag) textContent
+          const errorPlaceholder = document.querySelector(`.${fieldName}-error`);
+          errorPlaceholder.textContent = result.errors[fieldName].msg;
+          // make all placeholders visible
+          errorPlaceholder.style.display = "block";
+        });
+      } else {
+        // success
+        successToast.showToast();
+        closeModal();
+        document.querySelector("p.error").style.display = "none";
+        // reload the page after 1 second
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      }
+    };
+  </script>
+</html>

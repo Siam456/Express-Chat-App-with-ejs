@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <link rel="shortcut icon" href="./images/login.png" />
+    <link rel="stylesheet" href="./stylesheets/toastify.css" />
+    <link rel="stylesheet" href="./stylesheets/style.css" />
+    <script src="./js/toastify.js"></script>
+
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+
+    <style>
+      .newac{
+        text-decoration: none;
+        color: #6C63FF;
+      }
+      .newac:hover{
+        text-decoration: underline;
+      }
+      #left-column {
+        grid-area: left-column;
+        background-color: var(--tertiary);
+        background-image: url("../images/profile.svg");
+        background-size: 68%;
+        background-position: center;
+        background-repeat: no-repeat;
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="menu">
+      <% if(loogedInUser && loogedInUser.name) { %>
+        <div class="menu-item"><a href="/profile" style="color: #FF6584;">Profile</a></div>
+        <div class="menu-item"><a href="/inbox">Inbox</a></div>
+        <% if(loogedInUser.role == 'admin') { %>
+          <div class="menu-item"><a href="/users">Users</a></div>
+        <% } %>
+        <div class="menu-item"><a onclick="logout()" href="#">LogOut</a></div>
+      <% } else { %>
+        <div class="menu-item"><a href="/about">about</a></div>
+        <div class="menu-item"><a class="lo-btn" href="/">Login</a></div>
+        <% } %>
+    </div>
+
+    <script>
+
+      const logouttoast = Toastify({
+        text: "You are being logged out...",
+        duration: 1000,
+      })
+
+      function logout(){
+        fetch('/', {
+          method: 'DELETE'
+        });
+      logouttoast.showToast();
+      setTimeout(() => {
+        window.location.replace("/");
+      }, 1000);
+
+      }
+    </script>
+
+    <div id="login-container">
+      <div id="left-column"></div>
+      <div id="branding">
+        <% if (loogedInUser.avatar) { %>
+            <img src="./upload/avater/<%=loogedInUser.avatar%>" alt="<%= loogedInUser.avatar %>" />
+            <% } else { %>
+              <img src="./images/profile2.svg" />
+          <% } %>
+        <h1><span style="color: #6C63FF;"><%= loogedInUser.name %></span>'s profile </h1>
+        <p
+        style="color: white; font-size: 15px;" 
+        ><span style="color: #FF6584;"><i class="fas fa-phone-alt"></i> </span><%= loogedInUser.phone %></p>
+        <p
+        style="color: white; font-size: 15px;" 
+        ><span style="color: #FF6584;"><i class="far fa-envelope"></i> </span><%= loogedInUser.email %></p>
+        <p
+        style="color: white; font-size: 15px;" 
+        >Go to <a href="/inbox" style="color: #FF6584;">Inbox</a> now</p>
+
+        
+      
+    </div>
+      <div id="login-form">
+        
+      </div>
+    </div>
+  </body>
+</html>

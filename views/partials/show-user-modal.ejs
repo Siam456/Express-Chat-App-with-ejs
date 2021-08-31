@@ -1,0 +1,63 @@
+<div class="modal-wrapper" id="add-user-modal">
+  <div class="modal">
+    <a href="#" onclick="closeModal()" class="modal-close">+</a>
+    <div class="modal-title">
+      <h2>User List</h2>
+    </div>
+    <div class="modal-body">
+      <% users.forEach(function(user) { %>
+      
+      <div onclick="alerta('<%= user._id %>','<%= user.name %>','<%= user.avater %>', '<%= loogedInUser.userid %>')">
+        <% if(user.email !== loogedInUser.email) { %>
+          <div  onclick="closeModal()"  class="data">
+            <% if(user.avater) { %>
+              <img class="modal-img" src="./upload/avater/<%= user.avater %>" alt="" height="50px" width="50px">
+            <% } else { %>
+              <img src="./images/user1.png %>" alt="" height="50px" width="50px">
+            <% } %>
+            <div class="modal-details">
+              <p id='Uname' class="modal-data"><%= user.name %></p>
+              <!-- <p id='U_id' class="modal-data"><%= user.email %></p> -->
+              <p id='U_id' class="modal-data"><%= user.phone %></p>
+            </div>
+          </div>
+          <% } %>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+<script>
+  
+  const modal = document.querySelector("#add-user-modal");
+  // success toast
+  const successToast = Toastify({
+    text: "User was added successfully! Reloading the list...",
+    duration: 1000,
+  });
+  function closeModal() {
+    modal.style.display = "none";
+  }
+  function openModal() {
+    modal.style.display = "block";
+  }
+
+  async function alerta(user_id, user_name, user_avater, creator_email){
+   
+    let response = await fetch('/createconversation/siam', {
+           method: "POST",
+           body: `participate_id=${user_id}&participante_name=${user_name}&participate_avatar=${user_avater}&creator_id=${creator_email}`,
+           headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              },
+        });
+        let result = await response.json();
+          console.log(result)
+
+          if(result){
+            successToast.showToast();
+            location.reload();
+          }
+  }
+
+  </script>
